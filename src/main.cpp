@@ -93,5 +93,48 @@ int main(int argc, char** argv)
     imshow("Traffic light detection", img);
     waitKey(0);
     return 0;
-    
+   
 }
+
+
+
+
+
+
+/*
+Angelica
+
+#include "VehicleDetector.hpp"
+#include <opencv2/opencv.hpp>
+
+using namespace std;
+using namespace cv;
+
+int main() {
+    // upload the model yolov5 (I had to used an limited versione because it was incompatible with the opncv version of the vlab)
+    string modelPath = "../models/yolov5s_clean.onnx"; 
+    string videoPath = "../videos/video1.mp4";  
+    VehicleDetector detector (modelPath);
+
+    VideoCapture cap(videoPath);
+    if (!cap.isOpened()) return -1;
+
+    Mat frame;
+    while (cap.read(frame)) {
+
+        detector.detect(frame);
+
+        namedWindow("Vehicle Detection", WINDOW_NORMAL);
+
+        imshow("Vehicle Detection", frame);
+        if (waitKey(1) == 27) break; 
+    }
+
+    return 0;
+}
+
+
+
+
+
+*/
