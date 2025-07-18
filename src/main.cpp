@@ -1,104 +1,100 @@
+//Authors: Angelica Zonta, Milica Masic
+
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
 #include <iostream>
+#include "TrafficLightDetector.h"
+#include "VehicleDetector.hpp"
 
 using namespace cv;
 using namespace std;
 
+// select detection parameters based on video
+TrafficLightDetector::DetectionParams getDetectionParamsForVideo(
+    const std::string& videoName, int cols, int rows) {
+    
+    TrafficLightDetector::DetectionParams params;
+
+    if (videoName == "video1.mp4") {
+        params.houghParam1 = 100;
+        params.houghParam2 = 20;
+        params.minRadius = 10;
+        params.maxRadius = 40;
+        params.roi = Rect(0, 500, 250, 300);
+    } else if (videoName == "video2.mp4") {
+        params.houghParam1 = 100;
+        params.houghParam2 = 20;
+        params.minRadius = 10;
+        params.maxRadius = 40;
+        params.roi = Rect(0, 500, 250, 300);
+    } else if (videoName == "video3.mp4") {
+        params.houghParam1 = 120;
+        params.houghParam2 = 25;
+        params.minRadius = 8;
+        params.maxRadius = 35;
+        params.roi = Rect(1670, 170, 90, 210);
+    } else if (videoName == "video4.mp4") {
+        params.houghParam1 = 100;
+        params.houghParam2 = 20;
+        params.minRadius = 10;
+        params.maxRadius = 40;
+        params.roi = Rect(0, 500, 250, 300);
+    } else if (videoName == "video5.mp4") {
+        params.houghParam1 = 30;
+        params.houghParam2 = 10;
+        params.minRadius = 2;
+        params.maxRadius = 10;
+        params.roi = Rect(290, 70, 15, 25);
+    } else {
+        // fallback/default values
+        params.houghParam1 = 100;
+        params.houghParam2 = 20;
+        params.minRadius = 10;
+        params.maxRadius = 40;
+        params.roi = Rect(0, 0, cols, rows);
+    }
+
+    return params;
+}
+
 int main(int argc, char** argv)
 {
-   
-    //day version
-    Mat img = imread("../images/vlcsnap-2025-07-15-20h51m19s421.png");
+    //video display
+    string videoPath = "../videos/video5.mp4";  
+    string videoName = videoPath.substr(videoPath.find_last_of("/\\") + 1);
 
-    //night version
-    //Mat img = imread("../images/vlcsnap-2025-07-17-00h29m56s656.png");
-    
-    if (img.empty()) {
-        std::cout << "Error: Failed to open the image." << std::endl;
-        return -1;
+    //VehicleDetector detector (modelPath);
+
+    VideoCapture cap(videoPath);
+    if (!cap.isOpened()) return -1;
+
+    Mat frame;
+    double fps = cap.get(cv::CAP_PROP_FPS);
+    int delay = 1000 / fps;  // Delay in ms between frames
+
+
+    //namedWindow("Vehicle Detection", WINDOW_NORMAL);
+    namedWindow("Traffic light detection", WINDOW_NORMAL);
+
+    TrafficLightDetector::DetectionParams params = getDetectionParamsForVideo(videoName, frame.cols, frame.rows);
+    TrafficLightDetector tlDetector(params);
+
+    while (cap.read(frame)) {
+
+        //detector.detect(frame);
+        tlDetector.detectAndAnnotate(frame, videoName);
+        
+        imshow("Traffic light detection", frame);
+        //imshow("Vehicle Detection", frame);
+        if (waitKey(2*delay) == 27) break;
     }
+    destroyAllWindows();
 
-    //cout prints are for debug purposes
-    cout << "Image size: " << img.cols << "x" << img.rows << endl;
-
-    //region of interest in video1, video2, video4
-    Rect roi(0, 500, 250, 300); // x, y, width, height
-    Mat cropped = img(roi);
-
-    //preprocessing for circle detection with Hough
-    Mat grayscale, blurred;
-    cvtColor(cropped, grayscale, COLOR_BGR2GRAY);
-    GaussianBlur(grayscale, blurred, Size(9, 9), 2);
-
-    //detection
-    vector<Vec3f> circles;
-    HoughCircles(blurred, circles, HOUGH_GRADIENT, 1,
-                grayscale.rows / 8, 100, 20, 10, 40);
-
-    // Draw circles back on the original image
-    for (int i = 0; i < circles.size(); i++) {
-        Vec3f c = circles[i];
-        Point center(cvRound(c[0]) + roi.x, cvRound(c[1]) + roi.y);
-        int radius = cvRound(c[2]);
-
-        cout<<radius<<endl;
-
-        //circle(img, center, 2, Scalar(0, 0, 255), 3);
-        circle(img, center, radius, Scalar(0, 255, 0), 2);
-
-        //take a patch overlapping with the circle
-        //TODO: find optimal patch size and a way to detect the most frequent color in a patch
-        //this patch size in combination with mean value of the patch doesn't work well
-
-        int patchSize = 5;
-        Rect patch(center.x - patchSize, center.y - patchSize, patchSize * 2, patchSize * 2);
-        patch.x = max(patch.x, 0);
-        patch.y = max(patch.y, 0);
-        patch.width = min(patch.width, img.cols - patch.x);
-        patch.height = min(patch.height, img.rows - patch.y);
-
-        Mat patchROI = img(patch);
-
-        //converting patch to HSV for color detection
-        Mat hsvPatch;
-        cvtColor(patchROI, hsvPatch, COLOR_BGR2HSV);
-
-        // Compute average HSV
-        Scalar avgHSV = mean(hsvPatch);
-        int h = avgHSV[0];
-        int s = avgHSV[1];
-        int v = avgHSV[2];
-
-        string color = "UNKNOWN";
-
-        cout<<"H: "<<h<<", S: "<<s<<", V: "<<v<<endl;
-        if ((h < 15 || h > 160) && s > 100 && v > 100)
-            color = "RED";
-        //does not work for night images - traffic lights too bright
-        else if (h >= 20 && h <= 30 && s > 100 && v > 100)
-            color = "YELLOW";
-        else if (h >= 40 && h <= 85 && s > 100 && v > 100)
-            color = "GREEN";
-
-        cout << "Detected traffic light color: " << color << endl;
-
-        //write the color in the image
-        putText(img, color, Point(center.x - 10, center.y - radius - 10),
-                FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 255), 2);
-    }
-
-    imshow("Traffic light detection", img);
-    waitKey(0);
     return 0;
    
 }
-
-
-
-
 
 
 /*
@@ -132,9 +128,5 @@ int main() {
 
     return 0;
 }
-
-
-
-
 
 */
