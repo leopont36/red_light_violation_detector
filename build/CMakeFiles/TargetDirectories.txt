@@ -1,3 +1,0 @@
-C:/Users/angel/CV-final-project/build/CMakeFiles/CV-FINAL-PROJECT.dir
-C:/Users/angel/CV-final-project/build/CMakeFiles/edit_cache.dir
-C:/Users/angel/CV-final-project/build/CMakeFiles/rebuild_cache.dir

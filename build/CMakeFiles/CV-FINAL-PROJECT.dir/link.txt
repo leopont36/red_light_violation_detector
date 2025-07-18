@@ -1,3 +1,0 @@
-C:\cmake-3.25.1-windows-x86_64\cmake-3.25.1-windows-x86_64\bin\cmake.exe -E rm -f CMakeFiles\CV-FINAL-PROJECT.dir/objects.a
-C:\MinGW\bin\ar.exe qc CMakeFiles\CV-FINAL-PROJECT.dir/objects.a @CMakeFiles\CV-FINAL-PROJECT.dir\objects1
-C:\MinGW\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\CV-FINAL-PROJECT.dir/objects.a -Wl,--no-whole-archive -o CV-FINAL-PROJECT.exe -Wl,--out-implib,libCV-FINAL-PROJECT.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\CV-FINAL-PROJECT.dir\linkLibs.rsp
