@@ -1,6 +1,6 @@
 /*
  *  main.cpp
- *  Authors: Milica Masic, Angelica Zonta
+ *  Author: Milica Masic
  */
 
 #include <opencv2/core.hpp>
