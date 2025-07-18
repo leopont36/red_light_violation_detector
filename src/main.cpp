@@ -1,4 +1,7 @@
-//Authors: Angelica Zonta, Milica Masic
+/*
+ *  main.cpp
+ *  Authors: Milica Masic, Angelica Zonta
+ */
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -22,13 +25,13 @@ TrafficLightDetector::DetectionParams getDetectionParamsForVideo(
         params.houghParam2 = 20;
         params.minRadius = 10;
         params.maxRadius = 40;
-        params.roi = Rect(0, 500, 250, 300);
+        params.roi = Rect(80, 550, 100, 250);
     } else if (videoName == "video2.mp4") {
         params.houghParam1 = 100;
         params.houghParam2 = 20;
         params.minRadius = 10;
         params.maxRadius = 40;
-        params.roi = Rect(0, 500, 250, 300);
+        params.roi = Rect(80, 550, 100, 250);
     } else if (videoName == "video3.mp4") {
         params.houghParam1 = 120;
         params.houghParam2 = 25;
@@ -40,7 +43,7 @@ TrafficLightDetector::DetectionParams getDetectionParamsForVideo(
         params.houghParam2 = 20;
         params.minRadius = 10;
         params.maxRadius = 40;
-        params.roi = Rect(0, 500, 250, 300);
+        params.roi = Rect(80, 550, 100, 250);
     } else if (videoName == "video5.mp4") {
         params.houghParam1 = 30;
         params.houghParam2 = 10;
@@ -48,7 +51,7 @@ TrafficLightDetector::DetectionParams getDetectionParamsForVideo(
         params.maxRadius = 10;
         params.roi = Rect(290, 70, 15, 25);
     } else {
-        // fallback/default values
+        //default
         params.houghParam1 = 100;
         params.houghParam2 = 20;
         params.minRadius = 10;
@@ -62,20 +65,20 @@ TrafficLightDetector::DetectionParams getDetectionParamsForVideo(
 int main(int argc, char** argv)
 {
     //video display
-    string videoPath = "../videos/video5.mp4";  
+    string videoPath = "../videos/video1.mp4";  
     string videoName = videoPath.substr(videoPath.find_last_of("/\\") + 1);
 
-    //VehicleDetector detector (modelPath);
+    //upload the model yolov5 (we had to used an limited versione because it was incompatible with the opncv version of the vlab)
+    string modelPath = "../models/yolov5s_clean.onnx"; 
+    VehicleDetector detector (modelPath, 0.3f, 0.45f);
 
     VideoCapture cap(videoPath);
     if (!cap.isOpened()) return -1;
 
     Mat frame;
     double fps = cap.get(cv::CAP_PROP_FPS);
-    int delay = 1000 / fps;  // Delay in ms between frames
+    int delay = 1000 / fps;  //delay between frames in ms
 
-
-    //namedWindow("Vehicle Detection", WINDOW_NORMAL);
     namedWindow("Traffic light detection", WINDOW_NORMAL);
 
     TrafficLightDetector::DetectionParams params = getDetectionParamsForVideo(videoName, frame.cols, frame.rows);
@@ -83,50 +86,14 @@ int main(int argc, char** argv)
 
     while (cap.read(frame)) {
 
-        //detector.detect(frame);
+        detector.detect(frame);
         tlDetector.detectAndAnnotate(frame, videoName);
         
         imshow("Traffic light detection", frame);
-        //imshow("Vehicle Detection", frame);
-        if (waitKey(2*delay) == 27) break;
+        if (waitKey(delay) == 27) break;
     }
     destroyAllWindows();
 
     return 0;
    
 }
-
-
-/*
-Angelica
-
-#include "VehicleDetector.hpp"
-#include <opencv2/opencv.hpp>
-
-using namespace std;
-using namespace cv;
-
-int main() {
-    // upload the model yolov5 (I had to used an limited versione because it was incompatible with the opncv version of the vlab)
-    string modelPath = "../models/yolov5s_clean.onnx"; 
-    string videoPath = "../videos/video1.mp4";  
-    VehicleDetector detector (modelPath);
-
-    VideoCapture cap(videoPath);
-    if (!cap.isOpened()) return -1;
-
-    Mat frame;
-    while (cap.read(frame)) {
-
-        detector.detect(frame);
-
-        namedWindow("Vehicle Detection", WINDOW_NORMAL);
-
-        imshow("Vehicle Detection", frame);
-        if (waitKey(1) == 27) break; 
-    }
-
-    return 0;
-}
-
-*/

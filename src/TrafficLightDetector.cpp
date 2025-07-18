@@ -1,5 +1,8 @@
-//Author: Milica Masic
-
+/*
+ *  TrafficLightDetector.cpp
+ *  Author: Milica Masic
+ */
+ 
 #include "TrafficLightDetector.h"
 #include <iostream>
 
@@ -18,11 +21,6 @@ void TrafficLightDetector::detectAndAnnotate(Mat& img, const string& videoName) 
     //debug
     //cout << "Image size: " << img.cols << "x" << img.rows << endl;
 
-    //region of interest in video1, video2, video4
-    //Rect roi(0, 500, 250, 300); // x, y, width, height
-    //Mat cropped = img(roi);
-
-    //Rect roi = getSafeROI(img, videoName);
     Mat cropped = img(params_.roi);
 
     //debug
@@ -52,8 +50,6 @@ void TrafficLightDetector::detectAndAnnotate(Mat& img, const string& videoName) 
         //cout << "Radius[i]: " << radius << endl;
 
         //detect color in the patches
-        //TODO: find optimal patch size and a way to detect the most frequent color in a patch
-        //this patch size in combination with mean value of the patch doesn't work well
         int patchSize = 3;
         Rect patch(center.x - patchSize, center.y - patchSize, patchSize * 2, patchSize * 2);
         patch.x = max(patch.x, 0);
@@ -78,59 +74,11 @@ void TrafficLightDetector::detectAndAnnotate(Mat& img, const string& videoName) 
     }
 }
 
-/*
-cv::Rect TrafficLightDetector::getSafeROI(const cv::Mat& img, const std::string& videoName) {
-    map<string, Rect> roiMap = {
-        {"video1.mp4", Rect(0, 500, 250, 300)},
-        {"video2.mp4", Rect(0, 500, 250, 300)},
-        {"video3.mp4", Rect(1670, 170, 90, 210)},
-        {"video4.mp4", Rect(0, 500, 250, 300)},
-        {"video5.mp4", Rect(290, 70, 15, 25)},
-    };
-
-    Rect roi;
-
-    if (roiMap.count(videoName)) {
-        roi = roiMap[videoName];
-    } else {
-        // Default ROI: whole image
-        roi = Rect(0, 0, img.cols, img.rows);
-    }
-
-    //roi must be within image bounds
-    roi.x = max(0, roi.x);
-    roi.y = max(0, roi.y);
-    roi.width = min(roi.width, img.cols - roi.x);
-    roi.height = min(roi.height, img.rows - roi.y);
-
-    return roi;
-}
-*/
-
-
 string TrafficLightDetector::getColorFromPatch(const Mat& patch, const Rect& patchRect, const Mat& img) {
     Mat hsvPatch;
     cvtColor(patch, hsvPatch, COLOR_BGR2HSV);
     Mat imgHSV;
     cvtColor(img, imgHSV, COLOR_BGR2HSV);
-    /*Scalar avgHSV = mean(hsvPatch);
-    int h = avgHSV[0];
-    int s = avgHSV[1];
-    int v = avgHSV[2];
-
-    //debug
-    cout << "H: " << h << ", S: " << s << ", V: " << v << endl;
-    //does not work for night images - traffic lights too bright
-    if ((h < 15 || h > 160) && s > 100 && v > 100)
-        return "RED";
-    else if (h >= 20 && h <= 30 && s > 100 && v > 100)
-        return "YELLOW";
-    else if (h >= 40 && h <= 85 && s > 100 && v > 100)
-        return "GREEN";
-    else
-        return "";
-
-    */
 
     int medianHue = getMedianHueWithFallback(hsvPatch, patchRect, imgHSV);
     //cout << "H: " << medianHue << endl;
@@ -163,11 +111,6 @@ int TrafficLightDetector::getMedianHueWithFallback(const Mat& hsv, const Rect& p
             int h = hsvPixel[0], s = hsvPixel[1], v = hsvPixel[2];
 
             total ++;
-
-            /*if (s > S_THRESH && v >= V_UNDEREXP_THRESH && v <= V_OVEREXP_THRESH) {
-                validHues.push_back(h);
-            }
-            */
 
             if (v < V_UNDEREXPOSURE_THRESH) {
                 underexposedCount++;

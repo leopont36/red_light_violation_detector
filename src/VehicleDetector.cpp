@@ -1,3 +1,8 @@
+/*
+ *  VehicleDetector.cpp
+ *  Author: Angelica Zonta
+ */
+
 #include "VehicleDetector.hpp"
 
 using namespace cv;
@@ -31,17 +36,27 @@ bool VehicleDetector::isVehicle(int classId) {
 
 
 void VehicleDetector::detect(Mat& frame) {
-    Mat blob = blobFromImage(frame, 1/255.0, Size(640, 640), Scalar(), true, false);
+    //we just want to detect the vehicles in the bottom 60% of the frame
+    int roiY = static_cast<int>(frame.rows * 0.40);  //top 40% skipped
+    Rect roi(0, roiY, frame.cols, frame.rows - roiY);
+    Mat frameROI = frame(roi);
+
+    //draw roi bounds on the frame
+    rectangle(frame, Rect(0, roiY, frame.cols, frame.rows - roiY), Scalar(255, 0, 0), 2);
+
+    
+    //Mat blob = blobFromImage(frame, 1/255.0, Size(640, 640), Scalar(), true, false);
+    Mat blob = blobFromImage(frameROI, 1/255.0, Size(640, 640), Scalar(), true, false);
     net.setInput(blob);
 
     vector<Mat> outputs;
     net.forward(outputs, net.getUnconnectedOutLayersNames());
     vector<Mat> selectedOutput = { outputs[0] };
 
-    postprocess(frame, selectedOutput);
+    postprocess(frame, outputs, roiY, frameROI.size());
 }
 
-void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs) {
+void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs, int roiYOffset, Size roiSize) {
     // outs it should include oly one emement with shape (1, 25200, 85)
     const Mat& output = outs[0]; // (1, 25200, 85)
     const int dimensions = output.size[2]; // 85
@@ -53,12 +68,18 @@ void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs) {
 
     int inputWidth = 640;
     int inputHeight = 640;
+    int roiWidth = roiSize.width;
+    int roiHeight = roiSize.height;
     int frameWidth = frame.cols;
     int frameHeight = frame.rows;
 
-    float scale = min(inputWidth / (float)frameWidth, inputHeight / (float)frameHeight);
-    float dx = (inputWidth - frameWidth * scale) / 2.0f;
-    float dy = (inputHeight - frameHeight * scale) / 2.0f;
+    //float scale = min(inputWidth / (float)frameWidth, inputHeight / (float)frameHeight);
+    //float dx = (inputWidth - frameWidth * scale) / 2.0f;
+    //float dy = (inputHeight - frameHeight * scale) / 2.0f;
+
+    float scale = min(inputWidth / (float)roiWidth, inputHeight / (float)roiHeight);
+    float dx = (inputWidth - roiWidth * scale) / 2.0f;
+    float dy = (inputHeight - roiHeight * scale) / 2.0f;
 
     const float* data = (float*)output.data;
 
@@ -83,10 +104,20 @@ void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs) {
                 int height = static_cast<int>(h / scale);
 
                 // limits the boxes inside the image
-                left = max(0, min(left, frameWidth - 1));
-                top = max(0, min(top, frameHeight - 1));
-                if (left + width > frameWidth) width = frameWidth - left;
-                if (top + height > frameHeight) height = frameHeight - top;
+                //left = max(0, min(left, frameWidth - 1));
+                //top = max(0, min(top, frameHeight - 1));
+
+                // Offset to full-frame coordinates
+                left = max(0, min(left, roiWidth - 1));
+                top = max(0, min(top, roiHeight - 1));
+
+                //if (left + width > frameWidth) width = frameWidth - left;
+                //if (top + height > frameHeight) height = frameHeight - top;
+
+                if (left + width > roiWidth) width = roiWidth - left;
+                if (top + height > roiHeight) height = roiHeight - top;
+
+                top += roiYOffset;
 
                 classIds.push_back(classIdPoint.x);
                 confidences.push_back(confidence);
