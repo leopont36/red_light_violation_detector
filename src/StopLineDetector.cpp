@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
@@ -44,3 +45,9 @@ class StopLineDetector
         }
     }
 }*/
+=======
+/*
+ *  StopLineDetector.cpp
+ *  Author: Leonardo Pontello
+ */
+>>>>>>> 2126c4b47b72d505faed8e1b13752fe481ff5d91

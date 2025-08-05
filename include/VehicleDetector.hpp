@@ -1,3 +1,8 @@
+/*
+ *  VehicleDetector.hpp
+ *  Author: Angelica Zonta
+ */
+
 #ifndef VEHICLE_DETECTOR_HPP
 #define VEHICLE_DETECTOR_HPP
 
@@ -20,7 +25,8 @@ private:
     float nmsThreshold;
     vector<string> classNames;
 
-    void postprocess(Mat& frame, const vector<Mat>& outs);
+    //void postprocess(Mat& frame, const vector<Mat>& outs);
+    void postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int roiYOffset, cv::Size roiSize);
     bool isVehicle(int classId);
     void loadClassNames(); 
 };
