@@ -3,6 +3,8 @@
 using namespace cv;
 using namespace std;
 
+std::function<bool(const cv::Vec4i&, const cv::Vec4i&)> StopLineDetector::linePredicate_;
+
 StopLineDetector::StopLineDetector() 
 { 
     linePredicate_ = [this](const cv::Vec4i& l1, const cv::Vec4i& l2) 
@@ -103,6 +105,7 @@ double StopLineDetector::segmentDistance(const Point2f& a, const Point2f& b, con
     double d4 = distPointSegment(d, a, b);
     return std::min({d1, d2, d3, d4});
 }
+
 
 
 
