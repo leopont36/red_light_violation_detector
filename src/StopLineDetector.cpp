@@ -7,23 +7,6 @@ std::function<bool(const cv::Vec4i&, const cv::Vec4i&)> StopLineDetector::linePr
 
 StopLineDetector::StopLineDetector() 
 { 
-    linePredicate_ = [this](const cv::Vec4i& l1, const cv::Vec4i& l2) 
-    {
-        cv::Point2f p1(l1[0], l1[1]), p2(l1[2], l1[3]);
-        cv::Point2f q1(l2[0], l2[1]), q2(l2[2], l2[3]);
-
-        double angle1 = atan2(p2.y - p1.y, p2.x - p1.x);
-        double angle2 = atan2(q2.y - q1.y, q2.x - q1.x);
-        double dAngle = fabs(angle1 - angle2);
-        if (dAngle > CV_PI / 2) dAngle = CV_PI - dAngle;
-
-        double dist = segmentDistance(p1, p2, q1, q2);
-
-        double maxDist = 20.0;
-        double maxAngle = CV_PI / 36.0;
-
-        return (dist < maxDist) && (dAngle < maxAngle);
-    };
 }
 
 Vec4i StopLineDetector::detectStopLine(const Mat& img) 
@@ -33,7 +16,7 @@ Vec4i StopLineDetector::detectStopLine(const Mat& img)
     OtsuCanny(prep, edges);
         
     std::vector<Vec4i> lines;
-    HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10);
+    HoughLinesP(edges, lines, 1, CV_PI/180, 50, img.cols * 0.20, img.cols * 0.10);
     
     std::vector<Vec4i> horizontalLines;
     for (const auto& line : lines) 
@@ -55,29 +38,68 @@ Vec4i StopLineDetector::detectStopLine(const Mat& img)
 
 void StopLineDetector::Preprocessing(const Mat& img, Mat& enh) 
 {
+    const double ROI_CUT_RATIO = 0.30;
+    const double CLAHE_CLIP_LIMIT = 2.0;
+    const Size CLAHE_TILE_SIZE = Size(8,8);  
     Mat gray;
-    int cut = img.rows * 0.30; 
+
+    //cut the region of interest (ROI): 70% of the bottom part of the image 
+    int cut = img.rows * ROI_CUT_RATIO; 
     Rect roi(0, img.rows - cut, img.cols, cut);
     cvtColor(img, gray, COLOR_BGR2GRAY);
     gray = gray(roi);
-    Ptr<CLAHE> clahe = createCLAHE(2.0 , Size(8,8));
+
+    // Histogram Equalization CLAHE
+    Ptr<CLAHE> clahe = createCLAHE(CLAHE_CLIP_LIMIT , CLAHE_TILE_SIZE);
     clahe->apply(gray, enh);    
 }
 
 void StopLineDetector::OtsuCanny(const Mat& img, Mat& edges)
 {
+    const Size KERNEL_SIZE = Size(15,3);
+    const Size BLUR_SIZE = Size(5,5);
+    const double SIGMA = 1.4;
     Mat closed, blurred, bin;
 
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(15, 3));
+    Mat kernel = getStructuringElement(MORPH_RECT, KERNEL_SIZE);
     morphologyEx(img, closed, MORPH_CLOSE, kernel);
 
-    GaussianBlur(closed, blurred, Size(5,5), 1.4);
+    GaussianBlur(closed, blurred, BLUR_SIZE, SIGMA);
 
     double otsuThresh = threshold(blurred, bin, 0, 255, THRESH_BINARY | THRESH_OTSU);
     double lower = max(0.0, 0.5 * otsuThresh);
     double upper = min(255.0, 1.5 * otsuThresh);
     Canny(closed, edges, lower, upper);
 }
+
+vector<Vec4i> filterLines(const vector<Vec4i>& lines, const Mat& img, const Rect& roi) {
+    vector<Vec4i> filtered;
+    double maxAngle = params.maxHorizontalAngleDeg * CV_PI / 180.0;
+    
+    for (auto &line : lines) {
+        // Trasla coordinate rispetto a ROI
+        Vec4i globalLine = line;
+        globalLine[1] += roi.y;
+        globalLine[3] += roi.y;
+        
+        LineMetrics metrics(globalLine, img.cols, img.rows);
+        
+        // Filtri multipli
+        bool isHorizontal = (fabs(metrics.angle) < maxAngle || 
+                            fabs(fabs(metrics.angle) - CV_PI) < maxAngle);
+        bool hasGoodCoverage = metrics.horizontalCoverage > params.minHorizontalCoverage;
+        bool isInLowerPart = metrics.avgY > img.rows * params.roiLowerThirdOnly;
+        
+        if (isHorizontal && hasGoodCoverage && isInLowerPart) {
+            filtered.push_back(globalLine);
+        }
+    }
+    
+    cout << "Linee filtrate: " << filtered.size() << " / " << lines.size() << endl;
+    return filtered;
+}
+
+
 
 double StopLineDetector::distPointSegment(const Point2f& p, const Point2f& a, const Point2f& b) 
 {
