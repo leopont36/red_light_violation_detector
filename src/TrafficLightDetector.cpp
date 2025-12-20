@@ -12,7 +12,7 @@ using namespace std;
 TrafficLightDetector::TrafficLightDetector(const DetectionParams& params)
     : params_(params) {}
 
-void TrafficLightDetector::detectAndAnnotate(Mat& img, const string& videoName) {
+void TrafficLightDetector::detectAndAnnotate(Mat& img) {
     if (img.empty()) {
         cout << "Error: empty image passed to detector" << endl;
         return;

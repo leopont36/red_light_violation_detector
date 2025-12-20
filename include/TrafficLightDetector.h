@@ -22,12 +22,10 @@ public:
 
     TrafficLightDetector(const DetectionParams& params);
 
-    void detectAndAnnotate(cv::Mat& img, const std::string& videoName);
+    void detectAndAnnotate(cv::Mat& img);
 
 private:
     DetectionParams params_;
-    //const methods?
-    cv::Rect getSafeROI(const cv::Mat& img, const std::string& videoName);
     std::string getColorFromPatch(const cv::Mat& patch, const cv::Rect& patchRect, const cv::Mat& img);
     int getMedianHueWithFallback(const cv::Mat& hsv, const cv::Rect& patchRect, const cv::Mat& imgHSV);
 };
