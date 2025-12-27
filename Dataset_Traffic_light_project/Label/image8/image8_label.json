@@ -1,0 +1,55 @@
+{
+  "boxes": [
+    {
+      "label": "stop_line",
+      "rect": {
+        "x": 346,
+        "y": 207,
+        "width": 329,
+        "height": 18
+      }
+    },
+    {
+      "label": "green_light",
+      "rect": {
+        "x": 687,
+        "y": 62,
+        "width": 18,
+        "height": 46
+      }
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 367,
+        "y": 196,
+        "width": 106,
+        "height": 103
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 570,
+        "y": 168,
+        "width": 33,
+        "height": 64
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 337,
+        "y": 267,
+        "width": 323,
+        "height": 246
+      },
+      "violation": false
+    }
+  ],
+  "height": 924,
+  "width": 1740,
+  "key": "Night7_000056.jpg"
+}

@@ -1,34 +1,59 @@
-#include "StopLineDetector.h"
 #include <opencv2/opencv.hpp>
+#include "ViolationDetector.h"
+#include "VehicleDetector.hpp"
+#include "TrafficLightDetector.h"
+#include "StopLineDetector.h"
+#include "Metrics.h"
+
 #include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 using namespace cv;
 using namespace std;
+using namespace filesystem;
 
-int main(int argc, char** argv)
-{
+int main() {
+    TrafficLightDetector::DetectionParams params;
+    TrafficLightDetector traffic_light_detector = TrafficLightDetector(params);
+    StopLineDetector stop_line_detector = StopLineDetector();
+    VehicleDetector vehicle_detector = VehicleDetector("C:\\Users\\Principale\\Documents\\GitHub\\CV-final-project\\models\\yolov5s_clean.onnx");
+    ViolationDetector violation_detector = ViolationDetector(traffic_light_detector, vehicle_detector, stop_line_detector);
+    Metrics metrics_calculator = Metrics(traffic_light_detector, vehicle_detector, stop_line_detector, violation_detector);
 
-    //string filename = "C:\\Users\\Principale\\Desktop\\image1.png";
-    //string filename = "C:\\Users\\Principale\\Documents\\GitHub\\CV-final-project\\images\\vlcsnap-2025-07-15-20h51m19s421.png";
-    string filename = "C:\\Users\\Principale\\Documents\\GitHub\\CV-final-project\\images\\vlcsnap-2025-07-17-00h29m56s656.png";
-    // Load image
-    Mat img = imread(filename, IMREAD_COLOR);
-    if (img.empty()) {
-        cout << "Error: Could not load image!" << endl;
-        return -1;
+    string basePath = "C:\\Users\\Principale\\Documents\\GitHub\\CV-final-project\\Dataset_Traffic_light_project\\Label";
+    
+    for (const auto& folder : directory_iterator(basePath)) {
+        if (folder.is_directory()) {
+            string pngFile, jsonFile;
+            
+            for (const auto& file : directory_iterator(folder)) {
+                string ext = file.path().extension().string();
+                string name = file.path().filename().string();
+                
+                if (ext == ".png" && name.find("_output") == string::npos)
+                    pngFile = file.path().string();
+                else if (ext == ".json")
+                    jsonFile = file.path().string();
+            }
+            
+            cout << "Folder: " << folder.path().filename() << "\n";
+            Mat frame = imread(pngFile);
+            
+            //read jsonfile 
+            ifstream jsonStream(jsonFile);
+            stringstream buffer;
+            buffer << jsonStream.rdbuf();
+            string jsonContent = buffer.str();
+            
+            Metrics::GroundTruthData data = Metrics::Parse(jsonContent);
+            metrics_calculator.ComputeMetricsFrame(frame, data);
+        }
     }
 
-    // Detect stop line
-    StopLineDetector detector;
-    Vec4i stopLine = detector.detectStopLine(img);
-
-    // Draw stop line
-    line(img, Point(stopLine[0], stopLine[1]), Point(stopLine[2], stopLine[3]), Scalar(0, 255, 0), 3);
-
-    // Show result
-    namedWindow("Stop Line Detection", WINDOW_NORMAL);
-    imshow("Stop Line Detection", img);
-    waitKey(0);
+    cout << "Final scores" << endl;
+    metrics_calculator.ComputeMetrics();
 
     return 0;
 }

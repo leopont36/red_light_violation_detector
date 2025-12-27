@@ -1,0 +1,35 @@
+{
+  "boxes": [
+    {
+      "label": "stop_line",
+      "rect": {
+        "x": 371,
+        "y": 220,
+        "width": 349,
+        "height": 20
+      }
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 728,
+        "y": 63,
+        "width": 25,
+        "height": 55
+      }
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 389,
+        "y": 221,
+        "width": 118,
+        "height": 112
+      },
+        "violation": false
+    }
+  ],
+  "height": 924,
+  "width": 1740,
+  "key": "Night7_000082.jpg"
+}

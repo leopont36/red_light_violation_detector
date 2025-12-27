@@ -1,0 +1,27 @@
+{
+  "boxes": [
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 345,
+        "y": 0,
+        "width": 10,
+        "height": 33
+      },
+      "violation": true
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 441,
+        "y": 119,
+        "width": 11,
+        "height": 38
+      },
+      "violation": true
+    }
+  ],
+  "height": 640,
+  "width": 640,
+  "key": "Screenshot-215-_png.rf.a5ed3306a4d53283e95562cbd47e7899.jpg"
+}

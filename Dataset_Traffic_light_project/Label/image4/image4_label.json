@@ -1,0 +1,92 @@
+{
+  "boxes": [
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 353,
+        "y": 69,
+        "width": 8,
+        "height": 32
+      }
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 306,
+        "y": 26,
+        "width": 17,
+        "height": 14
+      }
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 290,
+        "y": 22,
+        "width": 12,
+        "height": 15
+      }
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 266,
+        "y": 19,
+        "width": 22,
+        "height": 11
+      }
+    },
+    {
+      "label": "stop_line",
+      "rect": {
+        "x": 217,
+        "y": 148,
+        "width": 138,
+        "height": 30
+      }
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 27,
+        "y": 238,
+        "width": 231,
+        "height": 240
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 322,
+        "y": 134,
+        "width": 55,
+        "height": 104
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 212,
+        "y": 134,
+        "width": 39,
+        "height": 55
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 272,
+        "y": 85,
+        "width": 13,
+        "height": 26
+      },
+      "violation": true
+    }
+  ],
+  "height": 640,
+  "width": 640,
+  "key": "frame_00497_jpg.rf.358cda2e8b80b421230e8834864d27a7.jpg"
+}

@@ -1,0 +1,45 @@
+{
+  "boxes": [
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 232,
+        "y": 194,
+        "width": 64,
+        "height": 77
+      },
+      "violation": true
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 259,
+        "y": 232,
+        "width": 73,
+        "height": 76
+      },
+      "violation": true
+    },
+    {
+      "label": "stop_line",
+      "rect": {
+        "x": 112,
+        "y": 311,
+        "width": 417,
+        "height": 59
+      }
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 77,
+        "y": 142,
+        "width": 23,
+        "height": 46
+      }
+    }
+  ],
+  "height": 640,
+  "width": 640,
+  "key": "frame_00695_jpg.rf.842ba7953c190b0d3209ecc9ca0f8272.jpg"
+}

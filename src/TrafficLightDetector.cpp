@@ -9,22 +9,25 @@
 using namespace cv;
 using namespace std;
 
-TrafficLightDetector::TrafficLightDetector(const DetectionParams& params)
-    : params_(params) {}
+TrafficLightDetector::TrafficLightDetector(const DetectionParams& params) : params_(params) {}
 
-void TrafficLightDetector::detectAndAnnotate(Mat& img) {
+void TrafficLightDetector::SetParams(const DetectionParams& params){
+    params_ = params;
+}
+
+TrafficLightColor TrafficLightDetector::DetectTrafficLight(const Mat& img, const Rect& roi) {
     if (img.empty()) {
         cout << "Error: empty image passed to detector" << endl;
-        return;
+        return TrafficLightColor::Unknown;
     }
 
     //debug
     //cout << "Image size: " << img.cols << "x" << img.rows << endl;
 
-    Mat cropped = img(params_.roi);
+    Mat cropped = img(roi);
 
     //debug
-    rectangle(img, params_.roi, cv::Scalar(0, 255, 0), 2);
+    rectangle(img, roi, cv::Scalar(0, 255, 0), 2);
 
     //preprocessing
     Mat grayscale, blurred;
@@ -43,7 +46,7 @@ void TrafficLightDetector::detectAndAnnotate(Mat& img) {
 
     for (int i = 0; i < circles.size(); i++) {
         Vec3f c = circles[i];
-        Point center(cvRound(c[0]) + params_.roi.x, cvRound(c[1]) + params_.roi.y);
+        Point center(cvRound(c[0]) + roi.x, cvRound(c[1]) + roi.y);
         int radius = cvRound(c[2]);
 
         //debug
@@ -60,21 +63,14 @@ void TrafficLightDetector::detectAndAnnotate(Mat& img) {
         Mat patchROI = img(patch);
 
     
-        string color = getColorFromPatch(patchROI, patch, img);
-
-        //draw the circles on the frame
-        circle(img, center, radius, Scalar(0, 255, 0), 2);
-
-        //debug
-        cout << "Detected traffic light color: " << color << endl;
-
-        //write the color in the image
-        putText(img, color, Point(center.x - 10, center.y - radius - 10),
-                FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
+        TrafficLightColor color = getColorFromPatch(patchROI, patch, img);
+        if(color != TrafficLightColor::Unknown)
+            return color;
     }
+    return TrafficLightColor::Unknown;
 }
 
-string TrafficLightDetector::getColorFromPatch(const Mat& patch, const Rect& patchRect, const Mat& img) {
+TrafficLightColor TrafficLightDetector::getColorFromPatch(const Mat& patch, const Rect& patchRect, const Mat& img) {
     Mat hsvPatch;
     cvtColor(patch, hsvPatch, COLOR_BGR2HSV);
     Mat imgHSV;
@@ -82,16 +78,17 @@ string TrafficLightDetector::getColorFromPatch(const Mat& patch, const Rect& pat
 
     int medianHue = getMedianHueWithFallback(hsvPatch, patchRect, imgHSV);
     //cout << "H: " << medianHue << endl;
-    if (medianHue == -1) return "";
+    if (medianHue == -1) 
+        return TrafficLightColor::Unknown;
 
     if ((medianHue < 15 || medianHue > 160))
-        return "RED";
+        return TrafficLightColor::Red;
     else if (medianHue >= 20 && medianHue <= 35)
-        return "YELLOW";
+        return TrafficLightColor::Yellow;
     else if (medianHue >= 40 && medianHue <= 85)
-        return "GREEN";
+        return TrafficLightColor::Green;
 
-    return "";
+    return TrafficLightColor::Unknown;
 }
 
 int TrafficLightDetector::getMedianHueWithFallback(const Mat& hsv, const Rect& patchRect, const Mat& imgHSV) {
@@ -171,9 +168,7 @@ int TrafficLightDetector::getMedianHueWithFallback(const Mat& hsv, const Rect& p
         return -1;  //no valid outer pixels
 
     }
-    
 
     //5. nothing found
     return -1; 
 }
-

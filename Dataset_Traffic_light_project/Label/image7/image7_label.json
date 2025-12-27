@@ -1,0 +1,104 @@
+{
+  "boxes": [
+    {
+      "label": "red_light",
+      "rect":{
+        "x": 247,
+        "y": 39,
+        "width": 27,
+        "height": 15
+      }
+    },
+    {
+      "label": "red_light",
+      "rect": {
+        "x": 356,
+        "y": 113,
+        "width": 11,
+        "height": 27
+      }
+    },
+    {
+      "label": "stop_line",
+      "rect": {
+        "x": 188,
+        "y": 238,
+        "width": 153,
+        "height": 13
+      }
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 181,
+        "y": 189,
+        "width": 20,
+        "height": 65
+      },
+      "violation": true
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 258,
+        "y": 199,
+        "width": 19,
+        "height": 68
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 289,
+        "y": 216,
+        "width": 19,
+        "height": 69
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 207,
+        "y": 249,
+        "width": 52,
+        "height": 107
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 274,
+        "y": 324,
+        "width": 69,
+        "height": 144
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 116,
+        "y": 401,
+        "width": 84,
+        "height": 71
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 332,
+        "y": 245,
+        "width": 19,
+        "height": 77
+      },
+      "violation": false
+    }
+  ],
+  "height": 640,
+  "width": 640,
+  "key": "frame_00184_jpg.rf.b529f5ba030243d6ebef72ffe44fc43c.jpg"
+}

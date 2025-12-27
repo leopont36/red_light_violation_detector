@@ -1,0 +1,64 @@
+{
+  "boxes": [
+    {
+      "label": "green_light",
+      "rect": {
+        "x": 528,
+        "y": 8,
+        "width": 45,
+        "height": 22
+      }
+    },
+    {
+      "label": "green_light",
+      "rect": {
+        "x": 797,
+        "y": 92,
+        "width": 22,
+        "height": 55
+      }
+    },
+    {
+      "label": "stop_line",
+      "rect": {
+        "x": 428,
+        "y": 253,
+        "width": 331,
+        "height": 20
+      }
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 437,
+        "y": 204,
+        "width": 93,
+        "height": 86
+      },
+        "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 677,
+        "y": 803,
+        "width": 53,
+        "height": 107
+      },
+      "violation": false
+    },
+    {
+      "label": "vehicle",
+      "rect": {
+        "x": 677,
+        "y": 329,
+        "width": 53,
+        "height": 83
+      },
+      "violation": false
+    }
+  ],
+  "height": 920,
+  "width": 1756,
+  "key": "Night6_000172.jpg"
+}

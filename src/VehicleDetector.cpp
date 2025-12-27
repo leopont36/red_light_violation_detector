@@ -35,14 +35,11 @@ bool VehicleDetector::isVehicle(int classId) {
 }
 
 
-void VehicleDetector::detect(Mat& frame) {
-    //we just want to detect the vehicles in the bottom 60% of the frame
-    int roiY = static_cast<int>(frame.rows * 0.40);  //top 40% skipped
-    Rect roi(0, roiY, frame.cols, frame.rows - roiY);
+vector<Rect> VehicleDetector::detect(const Mat& frame, Rect roi) {
     Mat frameROI = frame(roi);
 
     //draw roi bounds on the frame
-    rectangle(frame, Rect(0, roiY, frame.cols, frame.rows - roiY), Scalar(255, 0, 0), 2);
+    rectangle(frame, roi, Scalar(255, 0, 0), 2);
 
     
     //Mat blob = blobFromImage(frame, 1/255.0, Size(640, 640), Scalar(), true, false);
@@ -53,10 +50,10 @@ void VehicleDetector::detect(Mat& frame) {
     net.forward(outputs, net.getUnconnectedOutLayersNames());
     vector<Mat> selectedOutput = { outputs[0] };
 
-    postprocess(frame, outputs, roiY, frameROI.size());
+    return postprocess(frame, outputs, roi.y, frameROI.size());
 }
 
-void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs, int roiYOffset, Size roiSize) {
+vector<Rect> VehicleDetector::postprocess(const Mat& frame, const vector<Mat>& outs, int roiYOffset, Size roiSize) {
     // outs it should include oly one emement with shape (1, 25200, 85)
     const Mat& output = outs[0]; // (1, 25200, 85)
     const int dimensions = output.size[2]; // 85
@@ -129,8 +126,12 @@ void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs, int roiYO
     vector<int> indices;
     dnn::NMSBoxes(boxes, confidences, confidenceThreshold, nmsThreshold, indices);
 
+    vector<Rect> detectedBoxes;
+
     for (int idx : indices) {
         Rect box = boxes[idx];
+        detectedBoxes.push_back(box);
+        
         rectangle(frame, box, Scalar(0, 255, 0), 2);
 
         string label = classNames[classIds[idx]];
@@ -144,5 +145,6 @@ void VehicleDetector::postprocess(Mat& frame, const vector<Mat>& outs, int roiYO
         putText(frame, label, Point(box.x, top), FONT_HERSHEY_SIMPLEX, 0.6,
                     Scalar(255, 255, 255), 1);
     }
+    
+    return detectedBoxes;
 }
-

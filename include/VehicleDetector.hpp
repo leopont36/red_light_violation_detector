@@ -17,7 +17,7 @@ class VehicleDetector {
 
 public:
     VehicleDetector(const string& modelPath, float confThreshold = 0.5f, float nmsThreshold = 0.4f);
-    void detect(Mat& frame);
+    std::vector<cv::Rect> detect(const cv::Mat& frame, cv::Rect roi);
 
 private:
     dnn::Net net;
@@ -26,7 +26,7 @@ private:
     vector<string> classNames;
 
     //void postprocess(Mat& frame, const vector<Mat>& outs);
-    void postprocess(cv::Mat& frame, const std::vector<cv::Mat>& outs, int roiYOffset, cv::Size roiSize);
+    std::vector<cv::Rect> postprocess(const cv::Mat& frame, const std::vector<cv::Mat>& outs, int roiYOffset, cv::Size roiSize);
     bool isVehicle(int classId);
     void loadClassNames(); 
 };
