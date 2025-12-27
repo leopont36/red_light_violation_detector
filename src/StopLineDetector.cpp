@@ -32,7 +32,7 @@ StopLineDetector::StopLineDetector(
     minCoverageRate_(minCoverageRate)
 {}
 
-Rect StopLineDetector::detectStopLine(const Mat& img)
+Rect StopLineDetector::detectStopLineRect(const Mat& img)
 {
     int roiOffset = static_cast<int>(img.rows * (1.0 - roiCutRatio_));
     
@@ -55,6 +55,31 @@ Rect StopLineDetector::detectStopLine(const Mat& img)
     Rect stopLineRect = ComputeStopLineRect(bestCluster);
 
     return stopLineRect;
+}
+
+Vec4i StopLineDetector::detectStopLine(const Mat& img)
+{
+    int roiOffset = static_cast<int>(img.rows * (1.0 - roiCutRatio_));
+    
+    Mat prep, edges;
+    Preprocessing(img, prep, roiCutRatio_);
+    OtsuCanny(prep, edges, cannyLowFactor_, cannyHighFactor_);
+        
+    vector<Vec4i> lines;
+    HoughLinesP(edges, lines, 1, CV_PI/180, houghThreshold_, static_cast<double>(img.cols) * houghMinLineRatio_, static_cast<double>(img.cols) * houghMaxGapRatio_);
+    
+    // Convert ROI coordinates to original image coordinates
+    for (auto& line : lines) {
+        line[1] += roiOffset;
+        line[3] += roiOffset;
+    }
+
+    vector<Vec4i> horizontalLines = FilterHorizontalLines(lines, maxHorizontalAngle_);
+    vector<vector<Vec4i>> clusters = LineClustering(horizontalLines, clusterMaxDistance_, clusterMaxAngle_);//
+    vector<Vec4i> bestCluster = FindBestCluster(clusters, img.cols, minCoverageRate_);
+    const Vec4i stopLine = ComputeStopLineEdge(bestCluster, img.cols);
+
+    return stopLine;
 }
 
 void StopLineDetector::Preprocessing(const Mat& img, Mat& closed, double cut_ratio) 
@@ -207,6 +232,43 @@ Rect StopLineDetector::ComputeStopLineRect(const vector<Vec4i>& cluster)
     int height = maxY - minY;
     
     return Rect(minX, minY, width, height);
+}
+
+Vec4i StopLineDetector::ComputeStopLineEdge(const vector<Vec4i>& cluster, int imgWidth) 
+{
+    // Return zero line if the cluster is empty
+    if (cluster.empty()) {
+        return Vec4i(0, 0, 0, 0);
+    }
+    
+    vector<Point2f> points;
+    int minX = INT_MAX, maxX = INT_MIN;
+    // Collect all endpoints from the lines in the cluster
+    for (const auto& line : cluster) {
+        points.emplace_back(line[0], line[1]);
+        points.emplace_back(line[2], line[3]);
+        minX = min(minX, min(line[0], line[2]));
+        maxX = max(maxX, max(line[0], line[2]));
+    }
+    
+    // Fit a line to the collected points using least squares
+    Vec4f fittedLine;
+    fitLine(points, fittedLine, DIST_L2, 0, 0.01, 0.01);
+    
+    // fittedLine contains: [vx, vy, x0, y0]
+    const float vx = fittedLine[0];
+    const float vy = fittedLine[1];
+    const float x0 = fittedLine[2];
+    const float y0 = fittedLine[3];
+    
+    // Compute y coordinates at image borders   
+    const float t1 = (minX - x0) / vx;
+    const int y1 = static_cast<int>(y0 + t1 * vy);
+    
+    const float t2 = (maxX - x0) / vx;
+    const int y2 = static_cast<int>(y0 + t2 * vy);
+    
+    return Vec4i(minX, y1, maxX, y2);
 }
     
 double StopLineDetector::SegmentDistance(const Point2f& a, const Point2f& b, const Point2f& c, const Point2f& d) 

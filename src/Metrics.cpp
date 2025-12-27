@@ -28,7 +28,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
 
     if(data.has_stopline)
     {
-        Rect stopline = stop_line_detector_.detectStopLine(frame);
+        Rect stopline = stop_line_detector_.detectStopLineRect(frame);
         double IoU = ComputeIoU(stopline, data.stopline);
         
         stopline_iou_sum_ += IoU;  

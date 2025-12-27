@@ -15,15 +15,14 @@
 class ViolationDetector {
 public:
     ViolationDetector(const TrafficLightDetector& traffic_light_detector, const VehicleDetector& vehicle_detector, const StopLineDetector& stop_line_detector);
-    void DetectViolations(VideoCapture cap);
-    bool ViolationDetector::DetectViolations(const Mat& img);
+    void DetectViolationsonVideo(VideoCapture& cap, Rect tl_roi);
+    bool DetectViolations(const Mat& img);
 
 private:
-
-    Vec4i FixStopLine(VideoCapture cap);
     TrafficLightDetector traffic_light_detector_;
     VehicleDetector vehicle_detector_;
     StopLineDetector stop_line_detector_;    
+    Rect CalculateROI(const Mat& frame, const Vec4i& stopline); 
 
 };
 

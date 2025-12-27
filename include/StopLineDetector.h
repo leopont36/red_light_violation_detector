@@ -40,6 +40,7 @@ private:
     std::vector<std::vector<cv::Vec4i>> LineClustering(const std::vector<cv::Vec4i>& lines, double max_distance, double max_angle_deg);
     std::vector<cv::Vec4i> FindBestCluster(const std::vector<std::vector<cv::Vec4i>>& clusters, int imgWidth, double min_coverage_rate);
     cv::Rect ComputeStopLineRect(const std::vector<cv::Vec4i>& cluster);
+    cv::Vec4i ComputeStopLineEdge(const std::vector<cv::Vec4i>& cluster, int imgWidth); 
     double SegmentDistance(const cv::Point2f& a, const cv::Point2f& b, const cv::Point2f& c, const cv::Point2f& d);
     double distPointSegment(const cv::Point2f& p, const cv::Point2f& a, const cv::Point2f& b);
 
@@ -58,7 +59,8 @@ public:
         double minCoverageRate = 0.40
     );
     
-    cv::Rect detectStopLine(const cv::Mat& img);
+    cv::Rect detectStopLineRect(const cv::Mat& img);
+    cv::Vec4i detectStopLine(const cv::Mat& img);
 };
 
 #endif // STOPLINEDETECTOR_H
