@@ -8,6 +8,8 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/dnn.hpp>
+#include <unordered_map>
+#include <string>
 
 using namespace std;
 using namespace cv;
@@ -23,12 +25,11 @@ private:
     dnn::Net net;
     float confidenceThreshold;
     float nmsThreshold;
-    vector<string> classNames;
+    std::unordered_map<int, std::string> classNames;
 
-    //void postprocess(Mat& frame, const vector<Mat>& outs);
     std::vector<cv::Rect> postprocess(const cv::Mat& frame, const std::vector<cv::Mat>& outs, int roiYOffset, cv::Size roiSize);
     bool isVehicle(int classId);
-    void loadClassNames(); 
+    void loadClassNames();
 };
 
 #endif

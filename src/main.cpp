@@ -51,6 +51,7 @@ int main() {
             metrics_calculator.ComputeMetricsFrame(frame, data);
         }
     }
+    metrics_calculator.ComputeMetrics();
 
     cout << "Test Video" << endl;
     VideoCapture cap("Dataset_Traffic_light_project/Video_training_set/aziz1.MP4");

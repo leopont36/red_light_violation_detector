@@ -16,6 +16,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
 {
     Mat visualization = frame.clone();
     
+    // check if traffic light color matches ground truth
     TrafficLightColor color = traffic_light_detector_.DetectTrafficLight(frame, Rect(0, 0, frame.cols, frame.rows));
     if(data.light_color == color)
     {
@@ -35,7 +36,6 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
         stopline_count_++;          
         
         cout << "Stopline IoU: " << IoU << endl;
-        
         rectangle(visualization, stopline, Scalar(0, 255, 0), 2);
     }
 
@@ -47,6 +47,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
         int truePositives = 0;
         vector<bool> gtMatched(data.vehicles.size(), false);
         
+        // for each detection, find the best matching ground truth box
         for(const auto& detectedVehicle : vehicles)
         {
             double maxIoU = 0.0;
@@ -63,6 +64,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
                 }
             }
             
+            // count as TP if IoU is above threshold
             if(maxIoU >= IOU_THRESHOLD && maxIdx >= 0)
             {
                 truePositives++;
@@ -72,6 +74,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
             rectangle(visualization, detectedVehicle, Scalar(255, 0, 0), 2);
         }
         
+        // precision at this frame (simplified AP)
         double AP = (vehicles.size() > 0) ? static_cast<double>(truePositives) / vehicles.size() : 0.0;
         
         vehicle_ap_sum_ += AP;  
@@ -81,6 +84,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
         cout << "Vehicles AP: " << AP << endl;
     }
 
+    // violation detection — compare result with ground truth
     bool violation = violation_detector_.DetectViolations(frame);
 
     if(violation && data.has_violation)
@@ -145,6 +149,7 @@ double Metrics::ComputeIoU(const Rect& rect1, const Rect& rect2)
     return intersectionArea / unionArea;
 }
 
+// JSON parsing helpers 
 string Metrics::ExtractString(const string& json, size_t start) {
     size_t first_quote = json.find("\"", start + 8); // after "label":
     size_t second_quote = json.find("\"", first_quote + 1);
@@ -158,6 +163,7 @@ double Metrics::ExtractNumber(const string& json, const string& key, size_t star
     pos += key.length();
     while (json[pos] == ' ') pos++;
     
+    // scan until end of number
     size_t end = pos;
     while (end < json.length() && (isdigit(json[end]) || json[end] == '.' || json[end] == '-')) {
         end++;
@@ -188,7 +194,7 @@ Metrics::GroundTruthData Metrics::Parse(const string& json) {
             Rect rect = ExtractRect(json, pos);
             data.vehicles.push_back(rect);
                 
-            // Check if violation: true
+            // check if this vehicle has a violation flag
             size_t viol_pos = json.find("\"violation\":", pos);
             size_t next_label = json.find("\"label\":", pos + 1);
             if (viol_pos != string::npos && (next_label == string::npos || viol_pos < next_label)) {
