@@ -1,5 +1,5 @@
 /*
- *  TrafficLightDetector.h
+ *  trafficlight_detector.h
  *  Author: Milica Masic
  */
 
@@ -9,7 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
-enum class TrafficLightColor {
+enum class TrafficlightColor {
     Red,
     Yellow,
     Green,
@@ -17,7 +17,7 @@ enum class TrafficLightColor {
 };
 
 
-class TrafficLightDetector {
+class TrafficlightDetector {
 public:
     struct DetectionParams {
         double houghParam1 = 100;
@@ -27,13 +27,13 @@ public:
         bool useColorThresholdOnly = false;
     };
 
-    TrafficLightDetector(const DetectionParams& params);
-    TrafficLightColor DetectTrafficLight(const cv::Mat& img, const cv::Rect& roi);
+    TrafficlightDetector(const DetectionParams& params);
+    TrafficlightColor DetectTrafficlight(const cv::Mat& img, const cv::Rect& roi);
     void SetParams(const DetectionParams& params);
 
 private:
     DetectionParams params_;
-    TrafficLightColor getColorFromPatch(const cv::Mat& patch, const cv::Rect& patchRect, const cv::Mat& img);
+    TrafficlightColor getColorFromPatch(const cv::Mat& patch, const cv::Rect& patchRect, const cv::Mat& img);
     int getMedianHueWithFallback(const cv::Mat& hsv, const cv::Rect& patchRect, const cv::Mat& imgHSV);
 };
 

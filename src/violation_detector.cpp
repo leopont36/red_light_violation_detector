@@ -3,15 +3,15 @@
  *  Author: Leonardo Pontello
  */
 
-#include "ViolationDetector.h"
+#include "violation_detector.h"
 #include <cmath>
 
 using namespace cv;
 using namespace std;
 
-ViolationDetector::ViolationDetector(const TrafficLightDetector& traffic_light_detector,
+ViolationDetector::ViolationDetector(const TrafficlightDetector& traffic_light_detector,
     const VehicleDetector& vehicle_detector,
-    const StopLineDetector& stop_line_detector) 
+    const StoplineDetector& stop_line_detector) 
     : traffic_light_detector_(traffic_light_detector),
       vehicle_detector_(vehicle_detector),
       stop_line_detector_(stop_line_detector)
@@ -29,7 +29,7 @@ void ViolationDetector::DetectViolationsonVideo(VideoCapture& cap, Rect tl_roi)
     if (!cap.read(frame))
         return;
 
-    Vec4i stopline = stop_line_detector_.detectStopLine(frame);
+    Vec4i stopline = stop_line_detector_.detectStopline(frame);
     if (!isStopLineValid(stopline))
         return;
 
@@ -49,8 +49,8 @@ void ViolationDetector::DetectViolationsonVideo(VideoCapture& cap, Rect tl_roi)
         line(display, Point(stopline[0], stopline[1]), Point(stopline[2], stopline[3]), Scalar(0, 255, 0), 3);
         rectangle(display, roi, Scalar(255, 255, 0), 2);
 
-        TrafficLightColor light = traffic_light_detector_.DetectTrafficLight(frame, tl_roi);
-        string light_text = (light == TrafficLightColor::Red) ? "RED" : "NOT RED";
+        TrafficlightColor light = traffic_light_detector_.DetectTrafficlight(frame, tl_roi);
+        string light_text = (light == TrafficlightColor::Red) ? "RED" : "NOT RED";
         putText(display, light_text, Point(10, 30), FONT_HERSHEY_SIMPLEX, 1, Scalar(255, 255, 255), 2);
 
         vector<Rect> vehicles = vehicle_detector_.detect(frame, roi);
@@ -64,7 +64,7 @@ void ViolationDetector::DetectViolationsonVideo(VideoCapture& cap, Rect tl_roi)
             rectangle(display, vehicle, color, 2);
             circle(display, Point(vehicle.x + vehicle.width/2, vehicle_center_y), 5, color, -1);
 
-            if (vehicle_center_y < y_line && light == TrafficLightColor::Red)
+            if (vehicle_center_y < y_line && light == TrafficlightColor::Red)
                 putText(display, "VIOLATION", Point(vehicle.x, vehicle.y - 10), FONT_HERSHEY_SIMPLEX, 0.7, Scalar(0, 0, 255), 2);
         }
 
@@ -75,14 +75,14 @@ void ViolationDetector::DetectViolationsonVideo(VideoCapture& cap, Rect tl_roi)
 
 bool ViolationDetector::DetectViolations(const Mat& img)
 {
-    Vec4i stopline = stop_line_detector_.detectStopLine(img);
+    Vec4i stopline = stop_line_detector_.detectStopline(img);
 
     // check preconditions before running heavy detectors
     if (!isStopLineValid(stopline))
         return false;
 
-    TrafficLightColor color = traffic_light_detector_.DetectTrafficLight(img, Rect(0, 0, img.cols, img.rows));
-    if (color != TrafficLightColor::Red)
+    TrafficlightColor color = traffic_light_detector_.DetectTrafficlight(img, Rect(0, 0, img.cols, img.rows));
+    if (color != TrafficlightColor::Red)
         return false;
 
     Rect roi = CalculateROI(img, stopline);

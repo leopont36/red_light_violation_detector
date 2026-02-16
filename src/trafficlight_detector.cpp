@@ -1,24 +1,24 @@
 /*
- *  TrafficLightDetector.cpp
+ *  TrafficlightDetector.cpp
  *  Author: Milica Masic
  */
 
-#include "TrafficLightDetector.h"
+#include "trafficlight_detector.h"
 #include <iostream>
 
 using namespace cv;
 using namespace std;
 
-TrafficLightDetector::TrafficLightDetector(const DetectionParams& params) : params_(params) {}
+TrafficlightDetector::TrafficlightDetector(const DetectionParams& params) : params_(params) {}
 
-void TrafficLightDetector::SetParams(const DetectionParams& params) {
+void TrafficlightDetector::SetParams(const DetectionParams& params) {
     params_ = params;
 }
 
-TrafficLightColor TrafficLightDetector::DetectTrafficLight(const Mat& img, const Rect& roi) {
+TrafficlightColor TrafficlightDetector::DetectTrafficlight(const Mat& img, const Rect& roi) {
     if (img.empty()) {
         cout << "Error: empty image passed to detector" << endl;
-        return TrafficLightColor::Unknown;
+        return TrafficlightColor::Unknown;
     }
 
     Mat cropped = img(roi);
@@ -39,7 +39,7 @@ TrafficLightColor TrafficLightDetector::DetectTrafficLight(const Mat& img, const
 
     // early exit if no circles found
     if (circles.empty())
-        return TrafficLightColor::Unknown;
+        return TrafficlightColor::Unknown;
 
     // convert full image to HSV
     Mat imgHSV;
@@ -59,53 +59,53 @@ TrafficLightColor TrafficLightDetector::DetectTrafficLight(const Mat& img, const
         patch.height = min(patch.height, img.rows - patch.y);
 
         Mat patchROI = img(patch);
-        TrafficLightColor color = getColorFromPatch(patchROI, patch, imgHSV);
+        TrafficlightColor color = getColorFromPatch(patchROI, patch, imgHSV);
 
-        if (color == TrafficLightColor::Red)    
+        if (color == TrafficlightColor::Red)    
             redVotes++;
         
-        else if (color == TrafficLightColor::Yellow) 
+        else if (color == TrafficlightColor::Yellow) 
             yellowVotes++;
         
-        else if (color == TrafficLightColor::Green)  
+        else if (color == TrafficlightColor::Green)  
             greenVotes++;
     }
 
     // decide final color based on votes
     if (redVotes > yellowVotes && redVotes > greenVotes && redVotes > 0) 
-        return TrafficLightColor::Red;
+        return TrafficlightColor::Red;
 
     if (greenVotes > yellowVotes && greenVotes > redVotes && greenVotes > 0) 
-        return TrafficLightColor::Green;
+        return TrafficlightColor::Green;
 
     if (yellowVotes > 0)                                                          
-        return TrafficLightColor::Yellow;
+        return TrafficlightColor::Yellow;
 
-    return TrafficLightColor::Unknown;
+    return TrafficlightColor::Unknown;
 }
 
-TrafficLightColor TrafficLightDetector::getColorFromPatch(const Mat& patch, const Rect& patchRect, const Mat& imgHSV) {
+TrafficlightColor TrafficlightDetector::getColorFromPatch(const Mat& patch, const Rect& patchRect, const Mat& imgHSV) {
     
     Mat hsvPatch;
     cvtColor(patch, hsvPatch, COLOR_BGR2HSV);
 
     int medianHue = getMedianHueWithFallback(hsvPatch, patchRect, imgHSV);
     if (medianHue == -1)
-        return TrafficLightColor::Unknown;
+        return TrafficlightColor::Unknown;
 
     if (medianHue < 10  || medianHue > 170)              
-        return TrafficLightColor::Red;
+        return TrafficlightColor::Red;
     
     else if (medianHue >= 15 && medianHue <= 40)           
-        return TrafficLightColor::Yellow;
+        return TrafficlightColor::Yellow;
     
     else if (medianHue >= 45 && medianHue <= 90)           
-        return TrafficLightColor::Green;
+        return TrafficlightColor::Green;
 
-    return TrafficLightColor::Unknown;
+    return TrafficlightColor::Unknown;
 }
 
-int TrafficLightDetector::getMedianHueWithFallback(const Mat& hsv, const Rect& patchRect, const Mat& imgHSV) {
+int TrafficlightDetector::getMedianHueWithFallback(const Mat& hsv, const Rect& patchRect, const Mat& imgHSV) {
     vector<int> validHues;
     const int S_THRESH = 40;
     const int V_OVEREXPOSURE_THRESH = 250;

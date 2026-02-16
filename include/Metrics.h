@@ -1,15 +1,17 @@
 /*
- *  metrics.hpp
+ *  metrics.h
+ *  Author: Leonardo Pontello
  */
 
 #ifndef METRICS_H
 #define METRICS_H
 
 #include <opencv2/opencv.hpp>
-#include "TrafficLightDetector.h"
-#include "VehicleDetector.hpp"
-#include "StopLineDetector.h"
-#include "ViolationDetector.h"
+#include "trafficlight_detector.h"
+#include "vehicle_detector.hpp"
+#include "stopline_detector.h"
+#include "violation_detector.h"
+
 #include <vector>
 #include <string>
 
@@ -23,11 +25,11 @@ public:
         bool has_violation;
         Rect stopline;
         bool has_stopline;
-        TrafficLightColor light_color;
-        GroundTruthData() : has_violation(false), has_stopline(false), light_color(TrafficLightColor::Unknown) {}
+        TrafficlightColor light_color;
+        GroundTruthData() : has_violation(false), has_stopline(false), light_color(TrafficlightColor::Unknown) {}
     };
 
-    Metrics(const TrafficLightDetector& traffic_light_detector, const VehicleDetector& vehicle_detector, const StopLineDetector& stop_line_detector, const ViolationDetector& violation_detector);
+    Metrics(const TrafficlightDetector& traffic_light_detector, const VehicleDetector& vehicle_detector, const StoplineDetector& stop_line_detector, const ViolationDetector& violation_detector);
     void ComputeMetricsFrame(Mat Frame, GroundTruthData data);
     void ComputeMetrics();
     static GroundTruthData Parse(const string& json);
@@ -39,9 +41,9 @@ private:
     static Rect ExtractRect(const string& json, size_t start);
 
 
-    TrafficLightDetector traffic_light_detector_;
+    TrafficlightDetector traffic_light_detector_;
     VehicleDetector vehicle_detector_;
-    StopLineDetector stop_line_detector_;
+    StoplineDetector stop_line_detector_;
     ViolationDetector violation_detector_;
 
     // Traffic Light Detection

@@ -1,16 +1,28 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 project(CV_FINAL_PROJECT)
 
 set(CMAKE_CXX_STANDARD 17)
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenCV REQUIRED)
 
-# find all the file .cpp in the src fold, and add them
-file(GLOB SOURCES "src/*.cpp")
+add_library(detector_lib STATIC
+    src/trafficlight_detector.cpp
+    src/vehicle_detector.cpp
+    src/stopline_detector.cpp
+    src/violation_detector.cpp
+    src/Metrics.cpp
+)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+target_include_directories(detector_lib PUBLIC
+    include/
+    ${OpenCV_INCLUDE_DIRS}
+)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(detector_lib PUBLIC
+    ${OpenCV_LIBS}
+)
+
+add_executable(${PROJECT_NAME} src/main.cpp)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE detector_lib)

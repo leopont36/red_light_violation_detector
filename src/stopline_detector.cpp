@@ -1,14 +1,14 @@
 /*
- *  StopLineDetector.cpp
+ *  StoplineDetector.cpp
  *  Author: Leonardo Pontello
  */
 
-#include "StopLineDetector.h"
+#include "stopline_detector.h"
 
 using namespace cv;
 using namespace std;
 
-StopLineDetector::StopLineDetector(
+StoplineDetector::StoplineDetector(
     double roiCutRatio,
     double cannyLowFactor,
     double cannyHighFactor,
@@ -32,7 +32,7 @@ StopLineDetector::StopLineDetector(
     minCoverageRate_(minCoverageRate)
 {}
 
-Rect StopLineDetector::detectStopLineRect(const Mat& img)
+Rect StoplineDetector::detectStoplineRect(const Mat& img)
 {
     int roiOffset = static_cast<int>(img.rows * (1.0 - roiCutRatio_));
     
@@ -52,12 +52,12 @@ Rect StopLineDetector::detectStopLineRect(const Mat& img)
     vector<Vec4i> horizontalLines = FilterHorizontalLines(lines, maxHorizontalAngle_);
     vector<vector<Vec4i>> clusters = LineClustering(horizontalLines, clusterMaxDistance_, clusterMaxAngle_);//
     vector<Vec4i> bestCluster = FindBestCluster(clusters, img.cols, minCoverageRate_);
-    Rect stopLineRect = ComputeStopLineRect(bestCluster);
+    Rect stopLineRect = ComputeStoplineRect(bestCluster);
 
     return stopLineRect;
 }
 
-Vec4i StopLineDetector::detectStopLine(const Mat& img)
+Vec4i StoplineDetector::detectStopline(const Mat& img)
 {
     int roiOffset = static_cast<int>(img.rows * (1.0 - roiCutRatio_));
     
@@ -77,12 +77,12 @@ Vec4i StopLineDetector::detectStopLine(const Mat& img)
     vector<Vec4i> horizontalLines = FilterHorizontalLines(lines, maxHorizontalAngle_);
     vector<vector<Vec4i>> clusters = LineClustering(horizontalLines, clusterMaxDistance_, clusterMaxAngle_);//
     vector<Vec4i> bestCluster = FindBestCluster(clusters, img.cols, minCoverageRate_);
-    const Vec4i stopLine = ComputeStopLineEdge(bestCluster, img.cols);
+    const Vec4i stopline = ComputeStoplineEdge(bestCluster, img.cols);
 
-    return stopLine;
+    return stopline;
 }
 
-void StopLineDetector::Preprocessing(const Mat& img, Mat& closed, double cut_ratio) 
+void StoplineDetector::Preprocessing(const Mat& img, Mat& closed, double cut_ratio) 
 {
     Mat gray, enh;
 
@@ -101,7 +101,7 @@ void StopLineDetector::Preprocessing(const Mat& img, Mat& closed, double cut_rat
     morphologyEx(enh, closed, MORPH_CLOSE, kernel);
 }
 
-void StopLineDetector::OtsuCanny(const Mat& img, Mat& edges, double low_factor, double high_factor) 
+void StoplineDetector::OtsuCanny(const Mat& img, Mat& edges, double low_factor, double high_factor) 
 {
     Mat blurred, bin;
 
@@ -115,7 +115,7 @@ void StopLineDetector::OtsuCanny(const Mat& img, Mat& edges, double low_factor, 
     Canny(blurred, edges, lower, upper);
 }
 
-vector<Vec4i> StopLineDetector::FilterHorizontalLines(const vector<Vec4i>& lines, double max_angle_deg) 
+vector<Vec4i> StoplineDetector::FilterHorizontalLines(const vector<Vec4i>& lines, double max_angle_deg) 
 {
     // Convert degrees to radians
     double MAX_HORIZONTAL_ANGLE = max_angle_deg * CV_PI / 180.0;
@@ -134,7 +134,7 @@ vector<Vec4i> StopLineDetector::FilterHorizontalLines(const vector<Vec4i>& lines
     return filtered;
 }
 
-vector<vector<Vec4i>> StopLineDetector::LineClustering(const vector<Vec4i>& lines, double max_distance, double max_angle_deg) 
+vector<vector<Vec4i>> StoplineDetector::LineClustering(const vector<Vec4i>& lines, double max_distance, double max_angle_deg) 
 {   
     vector<vector<Vec4i>> clusters;
 
@@ -174,7 +174,7 @@ vector<vector<Vec4i>> StopLineDetector::LineClustering(const vector<Vec4i>& line
     return clusters;
 }
 
-vector<Vec4i> StopLineDetector::FindBestCluster(const vector<vector<Vec4i>>& clusters, int imgWidth, double min_coverage_rate)
+vector<Vec4i> StoplineDetector::FindBestCluster(const vector<vector<Vec4i>>& clusters, int imgWidth, double min_coverage_rate)
 {
     // Return empty if no clusters found
     if (clusters.empty()) {
@@ -210,7 +210,7 @@ vector<Vec4i> StopLineDetector::FindBestCluster(const vector<vector<Vec4i>>& clu
     return bestCluster;
 }
 
-Rect StopLineDetector::ComputeStopLineRect(const vector<Vec4i>& cluster) 
+Rect StoplineDetector::ComputeStoplineRect(const vector<Vec4i>& cluster) 
 {
     // Return empty rect if the cluster is empty
     if (cluster.empty()) {
@@ -234,7 +234,7 @@ Rect StopLineDetector::ComputeStopLineRect(const vector<Vec4i>& cluster)
     return Rect(minX, minY, width, height);
 }
 
-Vec4i StopLineDetector::ComputeStopLineEdge(const vector<Vec4i>& cluster, int imgWidth) 
+Vec4i StoplineDetector::ComputeStoplineEdge(const vector<Vec4i>& cluster, int imgWidth) 
 {
     // Return zero line if the cluster is empty
     if (cluster.empty()) {
@@ -271,7 +271,7 @@ Vec4i StopLineDetector::ComputeStopLineEdge(const vector<Vec4i>& cluster, int im
     return Vec4i(minX, y1, maxX, y2);
 }
     
-double StopLineDetector::SegmentDistance(const Point2f& a, const Point2f& b, const Point2f& c, const Point2f& d) 
+double StoplineDetector::SegmentDistance(const Point2f& a, const Point2f& b, const Point2f& c, const Point2f& d) 
 {
     double d1 = distPointSegment(a, c, d);
     double d2 = distPointSegment(b, c, d);
@@ -280,7 +280,7 @@ double StopLineDetector::SegmentDistance(const Point2f& a, const Point2f& b, con
     return min({d1, d2, d3, d4});
 }
 
-double StopLineDetector::distPointSegment(const Point2f& p, const Point2f& a, const Point2f& b) 
+double StoplineDetector::distPointSegment(const Point2f& p, const Point2f& a, const Point2f& b) 
 {
     Point2f ab = b - a;
     double abLengthSq = ab.dot(ab);

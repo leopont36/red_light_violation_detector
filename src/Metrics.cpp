@@ -8,7 +8,7 @@
 using namespace std;
 using namespace cv;
 
-Metrics::Metrics(const TrafficLightDetector& traffic_light_detector, const VehicleDetector& vehicle_detector, const StopLineDetector& stop_line_detector, const ViolationDetector& violation_detector)
+Metrics::Metrics(const TrafficlightDetector& traffic_light_detector, const VehicleDetector& vehicle_detector, const StoplineDetector& stop_line_detector, const ViolationDetector& violation_detector)
     : traffic_light_detector_(traffic_light_detector), vehicle_detector_(vehicle_detector), stop_line_detector_(stop_line_detector), violation_detector_(violation_detector)
 {}
 
@@ -17,7 +17,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
     Mat visualization = frame.clone();
     
     // check if traffic light color matches ground truth
-    TrafficLightColor color = traffic_light_detector_.DetectTrafficLight(frame, Rect(0, 0, frame.cols, frame.rows));
+    TrafficlightColor color = traffic_light_detector_.DetectTrafficlight(frame, Rect(0, 0, frame.cols, frame.rows));
     if(data.light_color == color)
     {
         cout << "Traffic light: CORRECT" << endl;
@@ -29,7 +29,7 @@ void Metrics::ComputeMetricsFrame(Mat frame, GroundTruthData data)
 
     if(data.has_stopline)
     {
-        Rect stopline = stop_line_detector_.detectStopLineRect(frame);
+        Rect stopline = stop_line_detector_.detectStoplineRect(frame);
         double IoU = ComputeIoU(stopline, data.stopline);
         
         stopline_iou_sum_ += IoU;  
@@ -209,13 +209,13 @@ Metrics::GroundTruthData Metrics::Parse(const string& json) {
             data.has_stopline = true;
         }
         else if (label == "red_light") {
-            data.light_color = TrafficLightColor::Red;
+            data.light_color = TrafficlightColor::Red;
         }
         else if (label == "yellow_light") {
-            data.light_color = TrafficLightColor::Yellow;
+            data.light_color = TrafficlightColor::Yellow;
         }
         else if (label == "green_light") {
-            data.light_color = TrafficLightColor::Green;
+            data.light_color = TrafficlightColor::Green;
         }
            
         pos++;

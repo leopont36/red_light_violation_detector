@@ -1,9 +1,9 @@
 #include <opencv2/opencv.hpp>
-#include "ViolationDetector.h"
-#include "VehicleDetector.hpp"
-#include "TrafficLightDetector.h"
-#include "StopLineDetector.h"
-#include "Metrics.h"
+#include "violation_detector.h"
+#include "vehicle_detector.hpp"
+#include "trafficlight_detector.h"
+#include "stopline_detector.h"
+#include "metrics.h"
 
 #include <iostream>
 #include <filesystem>
@@ -15,9 +15,9 @@ using namespace std;
 using namespace filesystem;
 
 int main() {
-    TrafficLightDetector::DetectionParams params;
-    TrafficLightDetector traffic_light_detector = TrafficLightDetector(params);
-    StopLineDetector stop_line_detector = StopLineDetector();
+    TrafficlightDetector::DetectionParams params;
+    TrafficlightDetector traffic_light_detector = TrafficlightDetector(params);
+    StoplineDetector stop_line_detector = StoplineDetector();
     VehicleDetector vehicle_detector = VehicleDetector("models/yolov5s_clean.onnx");
     ViolationDetector violation_detector = ViolationDetector(traffic_light_detector, vehicle_detector, stop_line_detector);
     Metrics metrics_calculator = Metrics(traffic_light_detector, vehicle_detector, stop_line_detector, violation_detector);
