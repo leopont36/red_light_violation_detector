@@ -6,13 +6,13 @@
 - OpenCV
 - C++17
 
-## 1. Download Dataset (models and test data)
+## 1. Download Dataset 
 
 Download dataset folder from Google Drive (https://drive.google.com/drive/folders/12tEZOFQM99e3rhy-jMApy_LhatkQouec?hl=it)
 
 1. Open the link above in your browser
 2. Download the zip file 
-3. Extract the zip into the project root (cv-final-project)
+3. Extract the zip into the project root (/CV-final-project)
 
 ## 2. Build
 

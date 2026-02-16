@@ -11,7 +11,7 @@ add_library(detector_lib STATIC
     src/vehicle_detector.cpp
     src/stopline_detector.cpp
     src/violation_detector.cpp
-    src/Metrics.cpp
+    src/metrics.cpp
 )
 
 target_include_directories(detector_lib PUBLIC
