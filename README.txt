@@ -12,7 +12,7 @@ Download dataset folder from Google Drive (https://drive.google.com/drive/folder
 
 1. Open the link above in your browser
 2. Download the zip file 
-3. Extract the zip into the project root
+3. Extract the zip into the project root (cv-final-project)
 
 ## 2. Build
 
@@ -25,6 +25,6 @@ cmake ..
 # Compile
 cmake --build .
 
-## 4. Run
+## 3. Run
 
 ./CV_FINAL_PROJECT

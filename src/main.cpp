@@ -18,11 +18,11 @@ int main() {
     TrafficlightDetector::DetectionParams params;
     TrafficlightDetector traffic_light_detector = TrafficlightDetector(params);
     StoplineDetector stop_line_detector = StoplineDetector();
-    VehicleDetector vehicle_detector = VehicleDetector("models/yolov5s_clean.onnx");
+    VehicleDetector vehicle_detector = VehicleDetector("../models/yolov5s_clean.onnx");
     ViolationDetector violation_detector = ViolationDetector(traffic_light_detector, vehicle_detector, stop_line_detector);
     Metrics metrics_calculator = Metrics(traffic_light_detector, vehicle_detector, stop_line_detector, violation_detector);
 
-    const string basePath = "Dataset_Traffic_light_project/Label";
+    const string basePath = "../Dataset_Traffic_light_project/Label";
     
     for (const auto& folder : directory_iterator(basePath)) {
         if (folder.is_directory()) {
@@ -54,7 +54,7 @@ int main() {
     metrics_calculator.ComputeMetrics();
 
     cout << "Test Video" << endl;
-    VideoCapture cap("Dataset_Traffic_light_project/Video_training_set/aziz1.MP4");
+    VideoCapture cap("../Dataset_Traffic_light_project/Video_training_set/aziz1.MP4");
 
     if (!cap.isOpened()) {
         cerr << "cannot open the video" << endl;
